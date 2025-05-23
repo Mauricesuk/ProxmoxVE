@@ -147,7 +147,7 @@ function select_storage() {
     local STORAGE
     while [ -z "${STORAGE:+x}" ]; do
       STORAGE=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "Storage Pools" --radiolist \
-        "Which storage pool you would like to use for the ${CONTENT_LABEL,,}?\nTo make a selection, use the Spacebar.\n" \
+        "Which storage pool would you like to use for the ${CONTENT_LABEL,,}?\nTo make a selection, use the Spacebar.\n" \
         16 $(($MSG_MAX_LENGTH + 23)) 6 \
         "${MENU[@]}" 3>&1 1>&2 2>&3) || {
         msg_error "Menu aborted."
@@ -200,11 +200,11 @@ if qm status "$CTID" &>/dev/null || pct status "$CTID" &>/dev/null; then
 fi
 
 # Get template storage
-TEMPLATE_STORAGE=$(select_storage template) || exit
+TEMPLATE_STORAGE=$(select_storage template)
 msg_ok "Using ${BL}$TEMPLATE_STORAGE${CL} ${GN}for Template Storage."
 
 # Get container storage
-CONTAINER_STORAGE=$(select_storage container) || exit
+CONTAINER_STORAGE=$(select_storage container)
 msg_ok "Using ${BL}$CONTAINER_STORAGE${CL} ${GN}for Container Storage."
 
 # Update LXC template list
@@ -221,7 +221,8 @@ mapfile -t TEMPLATES < <(pveam available -section system | sed -n "s/.*\($TEMPLA
   exit 207
 }
 TEMPLATE="${TEMPLATES[-1]}"
-TEMPLATE_PATH="/var/lib/vz/template/cache/$TEMPLATE"
+TEMPLATE_PATH="$(pvesm path $TEMPLATE_STORAGE:vztmpl/$TEMPLATE)"
+# Without NAS/Mount: TEMPLATE_PATH="/var/lib/vz/template/cache/$TEMPLATE"
 # Check if template exists, if corrupt remove and redownload
 if ! pveam list "$TEMPLATE_STORAGE" | grep -q "$TEMPLATE" || ! zstdcat "$TEMPLATE_PATH" | tar -tf - >/dev/null 2>&1; then
   msg_warn "Template $TEMPLATE not found in storage or seems to be corrupted. Redownloading."

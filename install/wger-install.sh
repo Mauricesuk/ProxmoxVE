@@ -5,7 +5,7 @@
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/wger-project/wger
 
-source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -15,9 +15,6 @@ update_os
 
 msg_info "Installing Dependencies"
 $STD apt-get install -y \
-  curl \
-  sudo \
-  mc \
   git \
   gnupg \
   apache2 \
@@ -51,8 +48,8 @@ mkdir /home/wger/{static,media}
 chmod o+w /home/wger/media
 temp_dir=$(mktemp -d)
 cd $temp_dir
-RELEASE=$(curl -s https://api.github.com/repos/wger-project/wger/releases/latest | grep "tag_name" | awk '{print substr($2, 2, length($2)-3)}')
-wget -q "https://github.com/wger-project/wger/archive/refs/tags/$RELEASE.tar.gz"
+RELEASE=$(curl -fsSL https://api.github.com/repos/wger-project/wger/releases/latest | grep "tag_name" | awk '{print substr($2, 2, length($2)-3)}')
+curl -fsSL "https://github.com/wger-project/wger/archive/refs/tags/$RELEASE.tar.gz" -o $(basename "https://github.com/wger-project/wger/archive/refs/tags/$RELEASE.tar.gz")
 tar xzf $RELEASE.tar.gz
 mv wger-$RELEASE /home/wger/src
 cd /home/wger/src

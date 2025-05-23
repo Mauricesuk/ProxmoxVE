@@ -5,7 +5,7 @@
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/sbondCo/Watcharr
 
-source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -15,9 +15,6 @@ update_os
 
 msg_info "Installing Dependencies"
 $STD apt-get install -y \
-  curl \
-  sudo \
-  mc \
   gcc \
   gnupg
 msg_ok "Installed Dependencies"
@@ -25,8 +22,8 @@ msg_ok "Installed Dependencies"
 msg_info "Setup Golang"
 set +o pipefail
 temp_file=$(mktemp)
-golang_tarball=$(curl -s https://go.dev/dl/ | grep -oP 'go[\d\.]+\.linux-amd64\.tar\.gz' | head -n 1)
-wget -q https://golang.org/dl/"$golang_tarball" -O "$temp_file"
+golang_tarball=$(curl -fsSL https://go.dev/dl/ | grep -oP 'go[\d\.]+\.linux-amd64\.tar\.gz' | head -n 1)
+curl -fsSL "https://golang.org/dl/${golang_tarball}" -o "$temp_file"
 tar -C /usr/local -xzf "$temp_file"
 ln -sf /usr/local/go/bin/go /usr/local/bin/go
 rm -f "$temp_file"
@@ -43,8 +40,8 @@ msg_ok "Setup Node.js"
 
 msg_info "Setup Watcharr"
 temp_file=$(mktemp)
-RELEASE=$(curl -s https://api.github.com/repos/sbondCo/Watcharr/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
-wget -q "https://github.com/sbondCo/Watcharr/archive/refs/tags/v${RELEASE}.tar.gz" -O "$temp_file"
+RELEASE=$(curl -fsSL https://api.github.com/repos/sbondCo/Watcharr/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
+curl -fsSL "https://github.com/sbondCo/Watcharr/archive/refs/tags/v${RELEASE}.tar.gz" -o "$temp_file"
 tar -xzf "$temp_file"
 mv Watcharr-${RELEASE}/ /opt/watcharr
 cd /opt/watcharr

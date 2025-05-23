@@ -7,7 +7,8 @@ on:
 
 jobs:
   autolabeler:
-    runs-on: ubuntu-latest
+    if: github.repository == 'community-scripts/ProxmoxVE'
+    runs-on: runner-cluster-htl-set
     permissions:
       pull-requests: write
     env:
@@ -16,9 +17,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install minimatch
+      - name: Install dependencies
         run: npm install minimatch
-
+      
       - name: Label PR based on file changes and PR template
         uses: actions/github-script@v7
         with:
@@ -43,26 +44,8 @@ jobs:
             });
             const prFiles = prListFilesResponse.data;
            
-            const templateLabelMappings = {
-              "🐞 **bug fix**": "bugfix",
-              "✨ **new feature**": "feature",
-              "💥 **breaking change**": "breaking change",
-              "🆕 **new script**": "new script"
-            };
-            
-            for (const [checkbox, label] of Object.entries(templateLabelMappings)) {
-              const escapedCheckbox = checkbox.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-              const regex = new RegExp(`- \\[(x|X)\\]\\s*.*${escapedCheckbox}`, "i");
-              const match = prBody.match(regex);              
-              if (match) {
-                console.log(`Match: ${match}`);
-                labelsToAdd.add(label);
-              }
-            }
-            if (labelsToAdd.size === 0) {
-              labelsToAdd.add("general");
-            } 
 
+          
             // Apply labels based on file changes
             for (const [label, rules] of Object.entries(autolabelerConfig)) {
               const shouldAddLabel = prFiles.some((prFile) => {
@@ -79,6 +62,27 @@ jobs:
                 labelsToAdd.add(label);
               }
             }
+            //if two labels or more are added, return
+              if (labelsToAdd.size < 2) {
+                const templateLabelMappings = {
+                "🐞 **Bug fix**": "bugfix",
+                "✨ **New feature**": "feature",
+                "💥 **Breaking change**": "breaking change",
+                "🔧 **Refactoring / Code Cleanup**": "refactor",
+              };
+
+              for (const [checkbox, label] of Object.entries(templateLabelMappings)) {
+                const escapedCheckbox = checkbox.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+                const regex = new RegExp(`- \\[(x|X)\\]\\s*.*${escapedCheckbox}`, "i");
+                const match = prBody.match(regex);              
+                if (match) {
+                  console.log(`Match: ${match}`);
+                  labelsToAdd.add(label);
+                }
+              }
+            }
+
+            
             
             console.log(`Labels to add: ${Array.from(labelsToAdd).join(", ")}`);
 

@@ -3,8 +3,7 @@
 # Copyright (c) 2021-2025 tteck
 # Author: tteck
 # Co-Author: MickLesk (Canbiz)
-# License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/alexta69/metube
 
 source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
@@ -18,19 +17,16 @@ update_os
 msg_info "Installing Dependencies"
 $STD apt-get install -y --no-install-recommends \
   build-essential \
-  curl \
   aria2 \
   coreutils \
   gcc \
   g++ \
   musl-dev \
-  sudo \
   ffmpeg \
   git \
   make \
   gnupg \
-  ca-certificates \
-  mc
+  ca-certificates
 msg_ok "Installed Dependencies"
 
 msg_info "Setup Python3"
@@ -60,7 +56,7 @@ $STD node_modules/.bin/ng build
 cd /opt/metube
 $STD pip3 install pipenv
 $STD pipenv install
-mkdir -p /opt/metube_downloads /opt/metube_downloads/.metube /opt/metube_downloads/music /opt/metube_downloads/videos 
+mkdir -p /opt/metube_downloads /opt/metube_downloads/.metube /opt/metube_downloads/music /opt/metube_downloads/videos
 cat <<EOF >/opt/metube/.env
 DOWNLOAD_DIR=/opt/metube_downloads
 STATE_DIR=/opt/metube_downloads/.metube
@@ -85,7 +81,7 @@ User=root
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl enable -q --now metube.service
+systemctl enable -q --now metube
 msg_ok "Created Service"
 
 motd_ssh

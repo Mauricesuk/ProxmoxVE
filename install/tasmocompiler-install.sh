@@ -5,8 +5,7 @@
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/benzino77/tasmocompiler
 
-# Import Functions und Setup
-source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -16,9 +15,6 @@ update_os
 
 msg_info "Installing Dependencies. Patience"
 $STD apt-get install -y \
-  curl \
-  sudo \
-  mc \
   gnupg \
   git
 msg_ok "Installed Dependencies"
@@ -43,8 +39,8 @@ msg_ok "Setup Platformio"
 
 msg_info "Setup TasmoCompiler"
 mkdir /tmp/Tasmota
-RELEASE=$(curl -s https://api.github.com/repos/benzino77/tasmocompiler/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
-wget -q https://github.com/benzino77/tasmocompiler/archive/refs/tags/v${RELEASE}.tar.gz -O /tmp/v${RELEASE}.tar.gz
+RELEASE=$(curl -fsSL https://api.github.com/repos/benzino77/tasmocompiler/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
+curl -fsSL "https://github.com/benzino77/tasmocompiler/archive/refs/tags/v${RELEASE}.tar.gz" -o "/tmp/v${RELEASE}.tar.gz"
 cd /tmp
 tar xzf /tmp/v${RELEASE}.tar.gz
 mv tasmocompiler-${RELEASE}/ /opt/tasmocompiler/

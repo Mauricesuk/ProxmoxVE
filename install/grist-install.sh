@@ -2,8 +2,7 @@
 
 # Copyright (c) 2021-2025 community-scripts ORG
 # Author: cfurrow
-# License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/gristlabs/grist-core
 
 source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
@@ -16,12 +15,9 @@ update_os
 
 msg_info "Installing Dependencies"
 $STD apt-get install -y \
-  curl \
-  sudo \
   make \
   gnupg \
   ca-certificates \
-  mc \
   unzip \
   python3.11-venv
 msg_ok "Installed Dependencies"
@@ -36,11 +32,11 @@ $STD npm install -g yarn
 msg_ok "Installed Node.js"
 
 msg_info "Installing Grist"
-RELEASE=$(curl -s https://api.github.com/repos/gristlabs/grist-core/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
+RELEASE=$(curl -fsSL https://api.github.com/repos/gristlabs/grist-core/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
 export CYPRESS_INSTALL_BINARY=0
 export NODE_OPTIONS="--max-old-space-size=2048"
 cd /opt
-wget -q https://github.com/gristlabs/grist-core/archive/refs/tags/v${RELEASE}.zip
+curl -fsSL "https://github.com/gristlabs/grist-core/archive/refs/tags/v${RELEASE}.zip" -o $(basename "https://github.com/gristlabs/grist-core/archive/refs/tags/v${RELEASE}.zip")
 unzip -q v$RELEASE.zip
 mv grist-core-${RELEASE} grist
 cd grist
@@ -70,7 +66,7 @@ EnvironmentFile=-/opt/grist/.env
 WantedBy=multi-user.target
 EOF
 
-systemctl enable -q --now grist.service
+systemctl enable -q --now grist
 msg_ok "Created Service"
 
 motd_ssh

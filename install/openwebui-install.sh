@@ -3,10 +3,10 @@
 # Copyright (c) 2021-2025 tteck
 # Author: tteck
 # Co-Author: havardthom
-# License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# Source: https://openwebui.com/
 
-source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -16,9 +16,6 @@ update_os
 
 msg_info "Installing Dependencies"
 $STD apt-get install -y \
-  curl \
-  sudo \
-  mc \
   gpg \
   git \
   ffmpeg
@@ -58,7 +55,7 @@ export NODE_OPTIONS="--max-old-space-size=3584"
 $STD npm run build
 msg_ok "Installed Open WebUI"
 
-read -r -p "Would you like to add Ollama? <y/N> " prompt
+read -r -p "${TAB3}Would you like to add Ollama? <y/N> " prompt
 if [[ ${prompt,,} =~ ^(y|yes)$ ]]; then
   msg_info "Installing Ollama"
   curl -fsSLO https://ollama.com/download/ollama-linux-amd64.tgz
@@ -80,7 +77,7 @@ RestartSec=3
 [Install]
 WantedBy=multi-user.target
 EOF
-  systemctl enable -q --now ollama.service
+  systemctl enable -q --now ollama
   sed -i 's/ENABLE_OLLAMA_API=false/ENABLE_OLLAMA_API=true/g' /opt/open-webui/.env
   msg_ok "Installed Ollama"
 fi
@@ -100,7 +97,7 @@ ExecStart=/opt/open-webui/backend/start.sh
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl enable -q --now open-webui.service
+systemctl enable -q --now open-webui
 msg_ok "Created Service"
 
 motd_ssh

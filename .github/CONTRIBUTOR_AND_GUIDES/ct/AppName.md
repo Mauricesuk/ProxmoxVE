@@ -52,7 +52,7 @@ source <(curl -s https://raw.githubusercontent.com/[USER]/[REPO]/refs/heads/[BRA
 Final script:
 
 ```bash
-source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
+source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
 ```
 
 > [!CAUTION]
@@ -75,6 +75,7 @@ Example:
 >
 > - Add your username and source URL
 > - For existing scripts, add "| Co-Author [YourUserName]" after the current author
+> - Source is a URL of github repo containting source files of the application you're installing (not URL of your homepage or a blog)
 
 ---
 
@@ -95,7 +96,7 @@ Example:
 >| Variable | Description | Notes |
 >|----------|-------------|-------|
 >| `APP` | Application name | Must match ct\AppName.sh |
->| `var_tags` | Proxmox display tags without Spaces, only ; | Limit the number |  
+>| `var_tags` | Proxmox display tags without Spaces, only ; | Limit the number to 2 |  
 >| `var_cpu` | CPU cores | Number of cores |
 >| `var_ram` | RAM | In MB |
 >| `var_disk` | Disk capacity | In GB |
@@ -107,13 +108,13 @@ Example:
 
 ```bash
 APP="SnipeIT"
-var_tags="asset-management;foss"
-var_cpu="2"
-var_ram="2048"
-var_disk="4"
-var_os="debian"
-var_version="12"
-var_unprivileged="1"
+var_tags="${var_tags:-asset-management;foss}"
+var_cpu="${var_cpu:-2}"
+var_ram="${var_ram:-2048}"
+var_disk="${var_disk:-4}"
+var_os="${var_os:-debian}"
+var_version="${var_version:-12}"
+var_unprivileged="${var_unprivileged:-1}"
 ```
 
 ## 2.2 **📋 App output & base settings**
@@ -247,7 +248,7 @@ function update_script() {
         msg_error "No ${APP} Installation Found!"
         exit
     fi
-    msg_error "There is currently no automatic update function for ${APP}."
+    msg_error "Currently we don't provide an update function for this ${APP}."
     exit
 }
 ```

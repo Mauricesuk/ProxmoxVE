@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
+source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
 # Copyright (c) 2021-2025 community-scripts ORG
 # Author: MickLesk (Canbiz)
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/BookStackApp/BookStack
 
 APP="Bookstack"
-var_tags="organizer"
-var_cpu="1"
-var_ram="1024"
-var_disk="4"
-var_os="debian"
-var_version="12"
-var_unprivileged="1"
+var_tags="${var_tags:-organizer}"
+var_cpu="${var_cpu:-1}"
+var_ram="${var_ram:-1024}"
+var_disk="${var_disk:-4}"
+var_os="${var_os:-debian}"
+var_version="${var_version:-12}"
+var_unprivileged="${var_unprivileged:-1}"
 
 header_info "$APP"
 variables
@@ -27,7 +27,7 @@ function update_script() {
     msg_error "No ${APP} Installation Found!"
     exit
   fi
-  RELEASE=$(curl -s https://api.github.com/repos/BookStackApp/BookStack/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
+  RELEASE=$(curl -fsSL https://api.github.com/repos/BookStackApp/BookStack/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
   if [[ ! -f /opt/${APP}_version.txt ]] || [[ "${RELEASE}" != "$(cat /opt/${APP}_version.txt)" ]]; then
     msg_info "Stopping Apache2"
     systemctl stop apache2
@@ -35,15 +35,15 @@ function update_script() {
 
     msg_info "Updating ${APP} to v${RELEASE}"
     mv /opt/bookstack /opt/bookstack-backup
-    wget -q --directory-prefix=/opt "https://github.com/BookStackApp/BookStack/archive/refs/tags/v${RELEASE}.zip"
-    unzip -q /opt/v${RELEASE}.zip -d /opt
-    mv /opt/BookStack-${RELEASE} /opt/bookstack
+    curl -fsSL "https://github.com/BookStackApp/BookStack/archive/refs/tags/v${RELEASE}.zip" -o "/opt/BookStack-${RELEASE}.zip"
+    unzip -q "/opt/BookStack-${RELEASE}.zip" -d /opt
+    mv "/opt/BookStack-${RELEASE}" /opt/bookstack
     cp /opt/bookstack-backup/.env /opt/bookstack/.env
-    cp -r /opt/bookstack-backup/public/uploads/* /opt/bookstack/public/uploads/ || true
-    cp -r /opt/bookstack-backup/storage/uploads/* /opt/bookstack/storage/uploads/ || true
-    cp -r /opt/bookstack-backup/themes/* /opt/bookstack/themes/ || true
+    [[ -d /opt/bookstack-backup/public/uploads ]] && cp -a /opt/bookstack-backup/public/uploads/. /opt/bookstack/public/uploads/
+    [[ -d /opt/bookstack-backup/storage/uploads ]] && cp -a /opt/bookstack-backup/storage/uploads/. /opt/bookstack/storage/uploads/
+    [[ -d /opt/bookstack-backup/themes ]] && cp -a /opt/bookstack-backup/themes/. /opt/bookstack/themes/
     cd /opt/bookstack
-    export COMPOSER_ALLOW_SUPERUSER=1 
+    export COMPOSER_ALLOW_SUPERUSER=1
     $STD composer install --no-dev
     $STD php artisan migrate --force
     chown www-data:www-data -R /opt/bookstack /opt/bookstack/bootstrap/cache /opt/bookstack/public/uploads /opt/bookstack/storage
@@ -59,7 +59,7 @@ function update_script() {
 
     msg_info "Cleaning Up"
     rm -rf /opt/bookstack-backup
-    rm -rf /opt/v${RELEASE}.zip
+    rm -rf "/opt/BookStack-${RELEASE}.zip"
     msg_ok "Cleaned"
     msg_ok "Updated Successfully"
   else

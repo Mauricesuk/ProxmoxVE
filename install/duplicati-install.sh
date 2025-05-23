@@ -3,9 +3,9 @@
 # Copyright (c) 2021-2025 community-scripts ORG
 # Author: tremor021
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
-# Source: https://github.com/duplicati/duplicati
+# Source: https://github.com/duplicati/duplicati/
 
-source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -15,17 +15,14 @@ update_os
 
 msg_info "Installing Dependencies"
 $STD apt-get install -y \
-  curl \
-  sudo \
-  mc \
   libice6 \
   libsm6 \
   libfontconfig1
 msg_ok "Installed Dependencies"
 
 msg_info "Setting up Duplicati"
-RELEASE=$(curl -s https://api.github.com/repos/duplicati/duplicati/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4)}')
-wget -q "https://github.com/duplicati/duplicati/releases/download/v${RELEASE}/duplicati-${RELEASE}-linux-x64-gui.deb"
+RELEASE=$(curl -fsSL https://api.github.com/repos/duplicati/duplicati/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4)}')
+curl -fsSL "https://github.com/duplicati/duplicati/releases/download/v${RELEASE}/duplicati-${RELEASE}-linux-x64-gui.deb" -o $(basename "https://github.com/duplicati/duplicati/releases/download/v${RELEASE}/duplicati-${RELEASE}-linux-x64-gui.deb")
 $STD dpkg -i duplicati-${RELEASE}-linux-x64-gui.deb
 echo "${RELEASE}" >/opt/Duplicati_version.txt
 msg_ok "Finished setting up Duplicati"
@@ -33,9 +30,9 @@ msg_ok "Finished setting up Duplicati"
 DECRYPTKEY=$(openssl rand -base64 18 | tr -dc 'a-zA-Z0-9' | head -c13)
 ADMINPASS=$(openssl rand -base64 18 | tr -dc 'a-zA-Z0-9' | head -c13)
 {
-    echo "Admin password = ${ADMINPASS}"
-    echo "Database encryption key = ${DECRYPTKEY}"
-} >> ~/duplicati.creds
+  echo "Admin password = ${ADMINPASS}"
+  echo "Database encryption key = ${DECRYPTKEY}"
+} >>~/duplicati.creds
 
 msg_info "Creating Service"
 cat <<EOF >/etc/systemd/system/duplicati.service

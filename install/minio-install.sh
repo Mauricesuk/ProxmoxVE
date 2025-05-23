@@ -5,7 +5,7 @@
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/minio/minio
 
-source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -13,16 +13,9 @@ setting_up_container
 network_check
 update_os
 
-msg_info "Installing Dependencies"
-$STD apt-get install -y \
-    curl \
-    sudo \
-    mc
-msg_ok "Installed Dependencies"
-
 msg_info "Setup MinIO"
-RELEASE=$(curl -s https://api.github.com/repos/minio/minio/releases/latest | grep '"tag_name"' | awk -F '"' '{print $4}')
-wget -q https://dl.min.io/server/minio/release/linux-amd64/minio
+RELEASE=$(curl -fsSL https://api.github.com/repos/minio/minio/releases/latest | grep '"tag_name"' | awk -F '"' '{print $4}')
+curl -fsSL "https://dl.min.io/server/minio/release/linux-amd64/minio" -o $(basename "https://dl.min.io/server/minio/release/linux-amd64/minio")
 mv minio /usr/local/bin/
 chmod +x /usr/local/bin/minio
 useradd -r minio-user -s /sbin/nologin
@@ -41,7 +34,7 @@ EOF
     echo "MinIO-Credentials"
     echo "MinIO Admin User: $MINIO_ADMIN_USER"
     echo "MinIO Admin Password: $MINIO_ADMIN_PASSWORD"
-} >> ~/minio.creds
+} >>~/minio.creds
 echo "${RELEASE}" >/opt/${APPLICATION}_version.txt
 msg_ok "Setup MinIO"
 
@@ -57,7 +50,7 @@ After=network-online.target
 User=minio-user
 Group=minio-user
 EnvironmentFile=-/etc/default/minio
-ExecStart=/usr/local/bin/minio server /data
+ExecStart=/usr/local/bin/minio server --console-address ":9001" /data
 Restart=always
 RestartSec=5
 LimitNOFILE=65536

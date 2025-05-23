@@ -2,10 +2,10 @@
 
 # Copyright (c) 2021-2025 tteck
 # Author: tteck (tteckster)
-# License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# Source: https://changedetection.io/
 
-source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -15,9 +15,6 @@ update_os
 
 msg_info "Installing Dependencies (Patience)"
 $STD apt-get install -y \
-  curl \
-  sudo \
-  mc \
   git \
   build-essential \
   dumb-init \
@@ -140,6 +137,7 @@ cat <<EOF >/etc/systemd/system/browserless.service
 Description=browserless service
 After=network.target
 [Service]
+Environment=CONNECTION_TIMEOUT=60000
 WorkingDirectory=/opt/browserless
 ExecStart=/opt/browserless/scripts/start.sh
 SyslogIdentifier=browserless

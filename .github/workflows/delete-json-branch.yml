@@ -9,7 +9,8 @@ on:
 
 jobs:
   delete_branch:
-    runs-on: ubuntu-latest
+    if: github.repository == 'community-scripts/ProxmoxVE'
+    runs-on: runner-cluster-htl-set
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # Copyright (c) 2021-2025 community-scripts ORG
-# Author: [Dave-code-creater (Tan Dat, Ta)]
+# Author: Dave-code-creater (Tan Dat, Ta)
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
-# Source: [https://jupyter.org/]
+# Source: https://jupyter.org/
 
 source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
@@ -15,9 +15,6 @@ update_os
 
 msg_info "Installing Dependencies"
 $STD apt-get install -y \
-    curl \
-    sudo \
-    mc \
     python3 \
     python3-pip
 msg_ok "Installed Dependencies"

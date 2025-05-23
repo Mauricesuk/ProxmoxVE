@@ -2,10 +2,10 @@
 
 # Copyright (c) 2021-2025 tteck
 # Author: tteck (tteckster)
-# License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# Source: https://uptime.kuma.pet/
 
-source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -14,9 +14,6 @@ network_check
 update_os
 
 msg_info "Installing Dependencies"
-$STD apt-get install -y curl
-$STD apt-get install -y sudo
-$STD apt-get install -y mc
 $STD apt-get install -y git
 $STD apt-get install -y ca-certificates
 $STD apt-get install -y gnupg
@@ -54,7 +51,7 @@ ExecStart=/usr/bin/npm start
 
 [Install]
 WantedBy=multi-user.target" >$service_path
-$STD systemctl enable --now uptime-kuma.service
+$STD systemctl enable --now uptime-kuma
 msg_ok "Created Service"
 
 motd_ssh

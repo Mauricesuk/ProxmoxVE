@@ -3,8 +3,9 @@
 # Copyright (c) 2021-2025 community-scripts ORG
 # Author: bvdberg01
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# Source: https://github.com/Forceu/barcodebuddy
 
-source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
 catch_errors
@@ -14,9 +15,6 @@ update_os
 
 msg_info "Installing Dependencies"
 $STD apt-get install -y \
-  curl \
-  sudo \
-  mc \
   apache2 \
   redis \
   php-{curl,date,json,mbstring,redis,sqlite3,sockets} \
@@ -24,9 +22,9 @@ $STD apt-get install -y \
 msg_ok "Installed Dependencies"
 
 msg_info "Installing barcodebuddy"
-RELEASE=$(curl -s https://api.github.com/repos/Forceu/barcodebuddy/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
+RELEASE=$(curl -fsSL https://api.github.com/repos/Forceu/barcodebuddy/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
 cd /opt
-wget -q "https://github.com/Forceu/barcodebuddy/archive/refs/tags/v${RELEASE}.zip"
+curl -fsSL "https://github.com/Forceu/barcodebuddy/archive/refs/tags/v${RELEASE}.zip" -o $(basename "https://github.com/Forceu/barcodebuddy/archive/refs/tags/v${RELEASE}.zip")
 unzip -q "v${RELEASE}.zip"
 mv "/opt/barcodebuddy-${RELEASE}" /opt/barcodebuddy
 chown -R www-data:www-data /opt/barcodebuddy/data
